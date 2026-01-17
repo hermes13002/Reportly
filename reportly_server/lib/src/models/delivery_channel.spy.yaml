@@ -1,0 +1,32 @@
+# delivery channel configuration per company
+class: DeliveryChannel
+table: delivery_channel
+
+fields:
+  # foreign key to company
+  companyId: int
+  
+  # channel type: 'email', 'clickup', 'manual'
+  channelType: String
+  
+  # channel name for display
+  name: String
+  
+  # configuration json (varies by channel type)
+  # email: {"recipients": ["email@example.com"]}
+  # clickup: {"taskId": "...", "listId": "...", "workspaceId": "..."}
+  configJson: String
+  
+  # whether this channel is active
+  isActive: bool
+  
+  # whether this is the default channel for the company
+  isDefault: bool
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  delivery_channel_company_idx:
+    fields: companyId

@@ -1,0 +1,45 @@
+# schedule configuration for automated report generation
+class: ScheduleConfig
+table: schedule_config
+
+fields:
+  # foreign key to company
+  companyId: int
+  
+  # schedule type: 'weekly', 'bi-weekly', 'monthly', 'custom'
+  frequency: String
+  
+  # for custom: number of days between reports
+  customDays: int?
+  
+  # day of week for weekly (0=sunday, 1=monday, etc.)
+  dayOfWeek: int?
+  
+  # day of month for monthly
+  dayOfMonth: int?
+  
+  # time of day to generate (hour in 24h format)
+  hourOfDay: int
+  
+  # minute of the hour
+  minuteOfHour: int
+  
+  # whether scheduling is enabled
+  isEnabled: bool
+  
+  # last scheduled run
+  lastRunAt: DateTime?
+  
+  # next scheduled run
+  nextRunAt: DateTime?
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  schedule_company_idx:
+    fields: companyId
+    unique: true
+  schedule_next_run_idx:
+    fields: nextRunAt, isEnabled

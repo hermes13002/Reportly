@@ -1,0 +1,36 @@
+# repository entity - git repo linked to a company
+class: Repository
+table: repository
+
+fields:
+  # foreign key to company
+  companyId: int
+  
+  # git provider: 'github', 'gitlab', 'bitbucket'
+  provider: String
+  
+  # full repo name (e.g., 'owner/repo-name')
+  repoName: String
+  
+  # branch to fetch commits from
+  branch: String
+  
+  # commit prefix rules for grouping (comma-separated: 'feat,fix,refactor,docs')
+  prefixRules: String?
+  
+  # patterns to exclude (comma-separated keywords or author emails)
+  excludePatterns: String?
+  
+  # active flag
+  isActive: bool
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  repository_company_idx:
+    fields: companyId
+  repository_unique_idx:
+    fields: companyId, repoName
+    unique: true

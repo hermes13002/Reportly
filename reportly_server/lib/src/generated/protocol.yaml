@@ -1,0 +1,62 @@
+emailIdp:
+  - login:
+  - startRegistration:
+  - verifyRegistrationCode:
+  - finishRegistration:
+  - startPasswordReset:
+  - verifyPasswordResetCode:
+  - finishPasswordReset:
+jwtRefresh:
+  - refreshAccessToken:
+company:
+  - create:
+  - list:
+  - getById:
+  - update:
+  - delete:
+deliveryChannel:
+  - create:
+  - listByCompany:
+  - listActiveByCompany:
+  - getDefault:
+  - getById:
+  - update:
+  - setDefault:
+  - toggleActive:
+  - delete:
+report:
+  - create:
+  - listByCompany:
+  - getById:
+  - update:
+  - markSent:
+  - archive:
+  - delete:
+reportGeneration:
+  - generate:
+  - regenerate:
+  - send:
+  - sendViaChannel:
+reportTemplate:
+  - create:
+  - listByCompany:
+  - getDefault:
+  - getById:
+  - update:
+  - setDefault:
+  - delete:
+repository:
+  - create:
+  - listByCompany:
+  - getById:
+  - update:
+  - delete:
+  - toggleActive:
+scheduleConfig:
+  - upsert:
+  - getByCompany:
+  - toggleEnabled:
+  - updateNextRun:
+  - delete:
+greeting:
+  - hello:

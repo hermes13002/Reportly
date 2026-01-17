@@ -1,0 +1,32 @@
+# company entity - represents a client/company for report generation
+class: Company
+table: company
+
+fields:
+  # company details
+  name: String
+  description: String?
+  
+  # timezone for scheduling (e.g., 'America/New_York', 'Europe/London')
+  timezone: String
+  
+  # default report frequency: 'weekly', 'bi-weekly', 'monthly', 'custom'
+  reportFrequency: String
+  
+  # custom frequency in days (used when reportFrequency is 'custom')
+  customFrequencyDays: int?
+  
+  # ai summarization settings
+  aiEnabled: bool
+  
+  # tone: 'formal', 'neutral', 'casual'
+  toneSetting: String
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  company_name_idx:
+    fields: name
+    unique: true

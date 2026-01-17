@@ -1,0 +1,28 @@
+# report template - customizable per company
+class: ReportTemplate
+table: report_template
+
+fields:
+  # foreign key to company
+  companyId: int
+  
+  # template name
+  name: String
+  
+  # template content with variable placeholders
+  # supported: {{company_name}}, {{start_date}}, {{end_date}}, {{features}}, {{fixes}}, {{improvements}}, {{notes}}
+  content: String
+  
+  # whether this is the default template for the company
+  isDefault: bool
+  
+  # version number for tracking changes
+  version: int
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  template_company_idx:
+    fields: companyId

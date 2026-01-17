@@ -1,0 +1,44 @@
+# report entity - generated work reports
+class: Report
+table: report
+
+fields:
+  # foreign key to company
+  companyId: int
+  
+  # report period
+  startDate: DateTime
+  endDate: DateTime
+  
+  # generated report content (after template processing)
+  content: String
+  
+  # raw commits data (json string for reference)
+  rawCommitsJson: String?
+  
+  # ai-generated summary (if enabled)
+  aiSummary: String?
+  
+  # user-added notes
+  notes: String?
+  
+  # status: 'draft', 'sent', 'archived'
+  status: String
+  
+  # delivery timestamp
+  sentAt: DateTime?
+  
+  # delivery channel used (if sent)
+  deliveryChannel: String?
+  
+  # timestamps
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  report_company_idx:
+    fields: companyId
+  report_status_idx:
+    fields: status
+  report_date_range_idx:
+    fields: companyId, startDate, endDate

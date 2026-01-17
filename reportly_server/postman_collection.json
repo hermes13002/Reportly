@@ -1,0 +1,646 @@
+{
+    "info": {
+        "name": "Reportly API",
+        "description": "API collection for Reportly - Multi-Client Automated Work Report System",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Company",
+            "item": [
+                {
+                    "name": "Create Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/company/create",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"company\": {\n    \"name\": \"Acme Corp\",\n    \"description\": \"Software development company\",\n    \"timezone\": \"America/New_York\",\n    \"reportFrequency\": \"weekly\",\n    \"customFrequencyDays\": null,\n    \"aiEnabled\": true,\n    \"toneSetting\": \"formal\",\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "List Companies",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/company/list",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Company by ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/company/getById",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/company/update",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"company\": {\n    \"id\": 1,\n    \"name\": \"Acme Corp Updated\",\n    \"description\": \"Updated description\",\n    \"timezone\": \"America/New_York\",\n    \"reportFrequency\": \"bi-weekly\",\n    \"customFrequencyDays\": null,\n    \"aiEnabled\": true,\n    \"toneSetting\": \"neutral\",\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/company/delete",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Repository",
+            "item": [
+                {
+                    "name": "Create Repository",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/create",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"repository\": {\n    \"companyId\": 1,\n    \"provider\": \"github\",\n    \"repoName\": \"owner/repo-name\",\n    \"branch\": \"main\",\n    \"prefixRules\": \"feat,fix,refactor,docs\",\n    \"excludePatterns\": null,\n    \"isActive\": true,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "List Repositories by Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/listByCompany",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Repository by ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/getById",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Repository",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/update",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"repository\": {\n    \"id\": 1,\n    \"companyId\": 1,\n    \"provider\": \"github\",\n    \"repoName\": \"owner/repo-name\",\n    \"branch\": \"develop\",\n    \"prefixRules\": \"feat,fix,refactor,docs,test\",\n    \"excludePatterns\": \"bot@example.com\",\n    \"isActive\": true,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Toggle Repository Active",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/toggleActive",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Repository",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/repository/delete",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Report Template",
+            "item": [
+                {
+                    "name": "Create Template",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportTemplate/create",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"template\": {\n    \"companyId\": 1,\n    \"name\": \"Weekly Report\",\n    \"content\": \"# Weekly Report - {{company_name}}\\n\\n**Period:** {{start_date}} - {{end_date}}\\n\\n## Summary\\n{{summary}}\\n\\n## Features\\n{{features}}\\n\\n## Bug Fixes\\n{{fixes}}\\n\\n## Notes\\n{{notes}}\",\n    \"isDefault\": true,\n    \"version\": 1,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "List Templates by Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportTemplate/listByCompany",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Default Template",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportTemplate/getDefault",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Set Default Template",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportTemplate/setDefault",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Report",
+            "item": [
+                {
+                    "name": "List Reports by Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/listByCompany",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1,\n  \"status\": \"draft\",\n  \"limit\": 20,\n  \"offset\": 0\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Report by ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/getById",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Update Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/update",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"report\": {\n    \"id\": 1,\n    \"companyId\": 1,\n    \"startDate\": \"2026-01-07T00:00:00Z\",\n    \"endDate\": \"2026-01-14T00:00:00Z\",\n    \"content\": \"# Updated Report Content\\n\\nEdited content here...\",\n    \"rawCommitsJson\": null,\n    \"aiSummary\": null,\n    \"notes\": \"Additional notes added\",\n    \"status\": \"draft\",\n    \"sentAt\": null,\n    \"deliveryChannel\": null,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Mark Report Sent",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/markSent",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1,\n  \"deliveryChannel\": \"manual\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Archive Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/archive",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/report/delete",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Report Generation",
+            "item": [
+                {
+                    "name": "Generate Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportGeneration/generate",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1,\n  \"startDate\": \"2026-01-07T00:00:00Z\",\n  \"endDate\": \"2026-01-14T00:00:00Z\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Regenerate Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportGeneration/regenerate",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Send Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportGeneration/send",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Send Report via Channel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/reportGeneration/sendViaChannel",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"reportId\": 1,\n  \"channelId\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Delivery Channel",
+            "item": [
+                {
+                    "name": "Create Email Channel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/create",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"channel\": {\n    \"companyId\": 1,\n    \"channelType\": \"email\",\n    \"name\": \"Team Email\",\n    \"configJson\": \"{\\\"recipients\\\": [\\\"team@example.com\\\", \\\"manager@example.com\\\"]}\",\n    \"isActive\": true,\n    \"isDefault\": true,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Create Manual Channel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/create",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"channel\": {\n    \"companyId\": 1,\n    \"channelType\": \"manual\",\n    \"name\": \"Manual Copy\",\n    \"configJson\": \"{}\",\n    \"isActive\": true,\n    \"isDefault\": false,\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "List Channels by Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/listByCompany",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Default Channel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/getDefault",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Set Default Channel",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/setDefault",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Toggle Channel Active",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/deliveryChannel/toggleActive",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Schedule Config",
+            "item": [
+                {
+                    "name": "Upsert Schedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/scheduleConfig/upsert",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"config\": {\n    \"companyId\": 1,\n    \"frequency\": \"weekly\",\n    \"customDays\": null,\n    \"dayOfWeek\": 1,\n    \"dayOfMonth\": null,\n    \"hourOfDay\": 9,\n    \"minuteOfHour\": 0,\n    \"isEnabled\": true,\n    \"lastRunAt\": null,\n    \"nextRunAt\": \"2026-01-20T09:00:00Z\",\n    \"createdAt\": \"2026-01-14T12:00:00Z\",\n    \"updatedAt\": \"2026-01-14T12:00:00Z\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Schedule by Company",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/scheduleConfig/getByCompany",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Toggle Schedule Enabled",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/scheduleConfig/toggleEnabled",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Schedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": "{{baseUrl}}/scheduleConfig/delete",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"companyId\": 1\n}"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
