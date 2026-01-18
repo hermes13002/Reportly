@@ -31,6 +31,9 @@ dependencies:
     path: ../reportly_client
   serverpod_auth_idp_flutter: 3.2.1
   serverpod_flutter: 3.2.1
+  google_fonts: ^6.2.1
+  get: ^4.7.2
+  flutter_markdown: ^0.7.6
 
 dev_dependencies:
   flutter_lints: '>=3.0.0 <7.0.0'
@@ -50,7 +53,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   # assets:
-  #   - images/a_dot_burr.jpeg
+    
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -60,6 +63,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#from-packages
   assets:
     - assets/config.json
+    - assets/images/
 dependency_overrides:
   flutter_secure_storage: ^10.0.0
 

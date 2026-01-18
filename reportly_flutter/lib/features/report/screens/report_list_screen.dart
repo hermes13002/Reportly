@@ -4,7 +4,7 @@ import '../../../main.dart';
 import 'report_generate_screen.dart';
 import 'report_preview_screen.dart';
 
-/// report list for a company
+/// report list for a company - "Project Reports"
 class ReportListScreen extends StatefulWidget {
   final Company company;
 
@@ -17,6 +17,7 @@ class ReportListScreen extends StatefulWidget {
 class _ReportListScreenState extends State<ReportListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Report>? _allReports;
   List<Report>? _draftReports;
   List<Report>? _sentReports;
   bool _loading = true;
@@ -25,7 +26,7 @@ class _ReportListScreenState extends State<ReportListScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadReports();
   }
 
@@ -42,6 +43,7 @@ class _ReportListScreenState extends State<ReportListScreen>
     });
 
     try {
+      // Load drafts and sent reports separately for now (or could filter client side if API supports all)
       final drafts = await client.report.listByCompany(
         widget.company.id!,
         status: 'draft',
@@ -54,48 +56,144 @@ class _ReportListScreenState extends State<ReportListScreen>
         limit: 50,
         offset: 0,
       );
+
+      final archived = await client.report.listByCompany(
+        widget.company.id!,
+        status: 'archived',
+        limit: 20,
+        offset: 0,
+      );
+
+      final all = [...drafts, ...sent, ...archived];
+      // sort by created desc
+      all.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       setState(() {
         _draftReports = drafts;
         _sentReports = sent;
+        _allReports = all;
         _loading = false;
       });
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(widget.company.name),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Drafts'),
-            Tab(text: 'Sent'),
+        backgroundColor: Colors.transparent,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 8.0,
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Project Reports',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Tabs
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              height: 48,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                ),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.grey,
+                labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                dividerColor: Colors.transparent,
+                tabs: const [
+                  Tab(text: 'All'),
+                  Tab(text: 'Drafts'),
+                  Tab(text: 'Sent'),
+                ],
+              ),
+            ),
+
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search reports...',
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // List
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildReportList(_allReports),
+                  _buildReportList(_draftReports),
+                  _buildReportList(_sentReports),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildReportList(_draftReports, isDraft: true),
-          _buildReportList(_sentReports, isDraft: false),
-        ],
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToGenerate,
-        icon: const Icon(Icons.add),
-        label: const Text('Generate Report'),
+        backgroundColor: Theme.of(context).primaryColor,
+        icon: const Icon(Icons.auto_awesome, color: Colors.white),
+        label: const Text(
+          'Generate New',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
 
-  Widget _buildReportList(List<Report>? reports, {required bool isDraft}) {
+  Widget _buildReportList(List<Report>? reports) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -103,21 +201,14 @@ class _ReportListScreenState extends State<ReportListScreen>
     if (_error != null) {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
+            Text(
+              'Error loading reports',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
-            const SizedBox(height: 16),
-            Text('Error loading reports'),
-            const SizedBox(height: 8),
-            ElevatedButton.icon(
-              onPressed: _loadReports,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
+            TextButton(onPressed: _loadReports, child: const Text('Retry')),
           ],
         ),
       );
@@ -129,24 +220,18 @@ class _ReportListScreenState extends State<ReportListScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              isDraft ? Icons.edit_document : Icons.send,
-              size: 80,
-              color: Colors.grey[600],
+              Icons.assignment_outlined,
+              size: 64,
+              color: Theme.of(context).textTheme.bodySmall?.color,
             ),
             const SizedBox(height: 16),
             Text(
-              isDraft ? 'No draft reports' : 'No sent reports',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            if (isDraft) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Generate a new report to get started',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
+              'No reports found',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+                fontSize: 16,
               ),
-            ],
+            ),
           ],
         ),
       );
@@ -155,74 +240,132 @@ class _ReportListScreenState extends State<ReportListScreen>
     return RefreshIndicator(
       onRefresh: _loadReports,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         itemCount: reports.length,
-        itemBuilder: (context, index) =>
-            _buildReportCard(reports[index], isDraft: isDraft),
+        itemBuilder: (context, index) => _buildReportCard(reports[index]),
       ),
     );
   }
 
-  Widget _buildReportCard(Report report, {required bool isDraft}) {
+  Widget _buildReportCard(Report report) {
     final dateRange =
         '${_formatDate(report.startDate)} - ${_formatDate(report.endDate)}';
+    final isDraft = report.status == 'draft';
+    final isSent = report.status == 'sent';
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+    Color statusColor = Colors.grey;
+    String statusText = report.status.toUpperCase();
+    if (isDraft) {
+      statusColor = Colors.orange;
+    } else if (isSent) {
+      statusColor = Colors.green;
+      statusText = 'SENT';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.1),
+        ),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
         onTap: () => _navigateToPreview(report),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isDraft
-                      ? Colors.orange.withOpacity(0.2)
-                      : Colors.green.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  isDraft ? Icons.edit : Icons.check_circle,
-                  color: isDraft ? Colors.orange : Colors.green,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      dateRange,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+              // Top Row: Title + Badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Development Report', // Placeholder title logic, could be dynamic
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.titleMedium?.color,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Created ${_formatDate(report.createdAt)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: statusColor.withOpacity(0.5)),
+                    ),
+                    child: Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
                       ),
                     ),
-                    if (!isDraft && report.sentAt != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        'Sent via ${report.deliveryChannel ?? 'unknown'}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[600],
+              const SizedBox(height: 8),
+
+              // ID and Date
+              Row(
+                children: [
+                  Text(
+                    '#${report.id}',
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Icon(
+                    Icons.calendar_today,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    dateRange,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              Divider(height: 1, color: Theme.of(context).dividerColor),
+              const SizedBox(height: 16),
+
+              // Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    isDraft ? 'EDIT REPORT' : 'VIEW REPORT',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ],
               ),
             ],
           ),
@@ -232,7 +375,21 @@ class _ReportListScreenState extends State<ReportListScreen>
   }
 
   String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}';
   }
 
   Future<void> _navigateToGenerate() async {

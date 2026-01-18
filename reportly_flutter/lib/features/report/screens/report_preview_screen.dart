@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:reportly_client/reportly_client.dart';
 import '../../../main.dart';
 
@@ -32,6 +35,60 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
     super.initState();
     _contentController = TextEditingController(text: widget.report.content);
     _notesController = TextEditingController(text: widget.report.notes ?? '');
+
+    // log report data
+    _logReportData();
+  }
+
+  void _logReportData() {
+    dev.log('=== Opening Report Preview ===', name: 'ReportPreview');
+    dev.log('Company: ${widget.company.name}', name: 'ReportPreview');
+    dev.log('Report ID: ${widget.report.id}', name: 'ReportPreview');
+    dev.log('Status: ${widget.report.status}', name: 'ReportPreview');
+    dev.log(
+      'Date Range: ${widget.report.startDate} - ${widget.report.endDate}',
+      name: 'ReportPreview',
+    );
+
+    // log preview of content
+    final contentPreview = widget.report.content.length > 100
+        ? '${widget.report.content.substring(0, 100)}...'
+        : widget.report.content;
+    dev.log('Generated Report Preview: $contentPreview', name: 'ReportPreview');
+
+    // log commits preview
+    if (widget.report.rawCommitsJson != null) {
+      try {
+        final decoded = jsonDecode(widget.report.rawCommitsJson!);
+
+        if (decoded is Map) {
+          // grouped by type: {feat: [...], fix: [...], other: [...]}
+          int totalCommits = 0;
+          decoded.forEach((type, messages) {
+            if (messages is List) {
+              totalCommits += messages.length;
+              dev.log(
+                '$type: ${messages.length} commits',
+                name: 'ReportPreview',
+              );
+              if (messages.isNotEmpty) {
+                final firstMsg = messages.first.toString();
+                final preview = firstMsg.length > 40
+                    ? '${firstMsg.substring(0, 40)}...'
+                    : firstMsg;
+                dev.log('  First: $preview', name: 'ReportPreview');
+              }
+            }
+          });
+          dev.log('Total Commits: $totalCommits', name: 'ReportPreview');
+        }
+      } catch (e) {
+        dev.log('Error parsing commits: $e', name: 'ReportPreview');
+      }
+    } else {
+      dev.log('No raw commits data', name: 'ReportPreview');
+    }
+    dev.log('=== End Report Preview Log ===', name: 'ReportPreview');
   }
 
   @override
@@ -191,10 +248,55 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
           ),
           const SizedBox(height: 16),
 
-          // content
-          SelectableText(
-            widget.report.content,
-            style: Theme.of(context).textTheme.bodyMedium,
+          // raw commits section
+          if (widget.report.rawCommitsJson != null &&
+              widget.report.rawCommitsJson!.isNotEmpty)
+            _buildCommitsSection(),
+
+          // generated report section
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.article,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Generated Report',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  MarkdownBody(
+                    data: widget.report.content,
+                    selectable: true,
+                    styleSheet: MarkdownStyleSheet(
+                      h1: Theme.of(context).textTheme.headlineLarge,
+                      h2: Theme.of(context).textTheme.headlineMedium,
+                      h3: Theme.of(context).textTheme.titleLarge,
+                      p: Theme.of(context).textTheme.bodyMedium,
+                      listBullet: Theme.of(context).textTheme.bodyMedium,
+                      strong: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
 
           // notes
@@ -213,6 +315,136 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildCommitsSection() {
+    Map<String, List<String>> groupedCommits = {};
+    int totalCommits = 0;
+
+    try {
+      final decoded = jsonDecode(widget.report.rawCommitsJson!);
+      if (decoded is Map) {
+        decoded.forEach((type, messages) {
+          if (messages is List) {
+            groupedCommits[type.toString()] = messages.cast<String>();
+            totalCommits += messages.length;
+          }
+        });
+      }
+    } catch (e) {
+      // invalid json, skip
+    }
+
+    if (totalCommits == 0) return const SizedBox.shrink();
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.commit,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Raw Commits ($totalCommits)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 250),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: groupedCommits.entries.map((entry) {
+                    final type = entry.key;
+                    final messages = entry.value;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // type header
+                        Container(
+                          margin: const EdgeInsets.only(top: 8, bottom: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getTypeColor(type).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${type.toUpperCase()} (${messages.length})',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: _getTypeColor(type),
+                            ),
+                          ),
+                        ),
+                        // messages
+                        ...messages.map(
+                          (msg) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                              horizontal: 8,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '• ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    msg,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'feat':
+        return Colors.green;
+      case 'fix':
+        return Colors.orange;
+      case 'refactor':
+        return Colors.blue;
+      case 'docs':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildEditView() {
