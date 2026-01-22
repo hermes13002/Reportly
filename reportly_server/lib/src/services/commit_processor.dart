@@ -22,9 +22,10 @@ class CommitProcessor {
     final groups = <String, List<String>>{};
 
     for (final commit in commits) {
-      final message = commit.firstLine;
+      // Use full message for content
+      final message = commit.message;
 
-      // skip if contains exclude keywords
+      // skip if contains exclude keywords (check full message)
       if (excludeKeywords != null &&
           excludeKeywords.any(
             (kw) => message.toLowerCase().contains(kw.toLowerCase()),
@@ -48,9 +49,10 @@ class CommitProcessor {
     final result = <String>[];
 
     for (final msg in messages) {
-      final normalized = msg.toLowerCase().trim();
-      if (!seen.contains(normalized)) {
-        seen.add(normalized);
+      // Normalize for comparison (ignore whitespace/case)
+      final normalizedInfo = msg.trim().toLowerCase();
+      if (!seen.contains(normalizedInfo)) {
+        seen.add(normalizedInfo);
         result.add(msg);
       }
     }
@@ -58,13 +60,24 @@ class CommitProcessor {
     return result;
   }
 
-  /// normalize commit message (remove type prefix, clean up)
+  /// normalize commit message (remove type prefix from first line, keep body)
   String _normalizeMessage(String message) {
-    // remove conventional commit prefix
-    final cleaned = message.replaceFirst(RegExp(r'^\w+(\(.+\))?:\s*'), '');
-    // capitalize first letter
-    if (cleaned.isEmpty) return message;
-    return cleaned[0].toUpperCase() + cleaned.substring(1);
+    final lines = message.split('\n');
+    if (lines.isEmpty) return message;
+
+    // Process first line to remove conventional commit prefix
+    var firstLine = lines.first.trim();
+    firstLine = firstLine.replaceFirst(RegExp(r'^\w+(\(.+\))?:\s*'), '');
+
+    // Capitalize first letter of first line
+    if (firstLine.isNotEmpty) {
+      firstLine = firstLine[0].toUpperCase() + firstLine.substring(1);
+    }
+
+    if (lines.length == 1) return firstLine;
+
+    // Reassemble with processed first line and original body
+    return [firstLine, ...lines.skip(1)].join('\n');
   }
 
   /// flatten grouped commits to list

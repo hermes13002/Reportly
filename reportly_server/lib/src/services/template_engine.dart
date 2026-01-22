@@ -1,6 +1,7 @@
 /// template engine for report generation
 class TemplateEngine {
   /// available template variables
+  /// available template variables
   static const variables = [
     'company_name',
     'start_date',
@@ -8,6 +9,10 @@ class TemplateEngine {
     'features',
     'fixes',
     'improvements',
+    'others',
+    'chores',
+    'tests',
+    'documentation',
     'notes',
     'summary',
     'total_commits',
@@ -43,6 +48,10 @@ class TemplateEngine {
       'features': _formatList(groupedCommits['feat'] ?? []),
       'fixes': _formatList(groupedCommits['fix'] ?? []),
       'improvements': _formatList(groupedCommits['refactor'] ?? []),
+      'others': _formatList(groupedCommits['other'] ?? []),
+      'chores': _formatList(groupedCommits['chore'] ?? []),
+      'tests': _formatList(groupedCommits['test'] ?? []),
+      'documentation': _formatList(groupedCommits['docs'] ?? []),
       'notes': notes ?? '',
       'summary': summary ?? '',
       'total_commits': groupedCommits.values

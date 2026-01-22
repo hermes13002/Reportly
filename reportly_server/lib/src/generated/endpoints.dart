@@ -746,6 +746,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<DateTime>(),
               nullable: false,
             ),
+            'templateId': _i1.ParameterDescription(
+              name: 'templateId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -759,6 +764,7 @@ class Endpoints extends _i1.EndpointDispatch {
                         companyId: params['companyId'],
                         startDate: params['startDate'],
                         endDate: params['endDate'],
+                        templateId: params['templateId'],
                       ),
         ),
         'regenerate': _i1.MethodConnector(

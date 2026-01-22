@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reportly_client/reportly_client.dart';
+import 'package:collection/collection.dart';
 import '../../../main.dart';
 import 'report_preview_screen.dart';
 
@@ -18,6 +19,41 @@ class _ReportGenerateScreenState extends State<ReportGenerateScreen> {
   DateTime _endDate = DateTime.now();
   bool _generating = false;
   String? _error;
+  List<ReportTemplate> _templates = [];
+  int? _selectedTemplateId;
+  bool _loadingTemplates = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTemplates();
+  }
+
+  Future<void> _loadTemplates() async {
+    setState(() => _loadingTemplates = true);
+    try {
+      final templates = await client.reportTemplate.listByCompany(
+        widget.company.id!,
+      );
+      if (mounted) {
+        setState(() {
+          _templates = templates;
+          // select default if exists
+          final def = templates.firstWhereOrNull((t) => t.isDefault)?.id;
+          if (def != null) {
+            _selectedTemplateId = def;
+          } else if (templates.isNotEmpty) {
+            _selectedTemplateId = templates.first.id;
+          }
+        });
+      }
+    } catch (e) {
+      // silent fail for templates? or show snackbar
+      print('Failed to load templates: $e');
+    } finally {
+      if (mounted) setState(() => _loadingTemplates = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +139,47 @@ class _ReportGenerateScreenState extends State<ReportGenerateScreen> {
               date: _endDate,
               onPick: (date) => setState(() => _endDate = date),
             ),
+            const SizedBox(height: 24),
+
+            // Template selection
+            Text(
+              'Template',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            if (_loadingTemplates)
+              const Center(child: LinearProgressIndicator())
+            else if (_templates.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[700]!),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<int>(
+                    value: _selectedTemplateId,
+                    isExpanded: true,
+                    hint: const Text('Select a template'),
+                    items: _templates.map((t) {
+                      return DropdownMenuItem<int>(
+                        value: t.id,
+                        child: Text(t.name),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      setState(() => _selectedTemplateId = v);
+                    },
+                  ),
+                ),
+              )
+            else
+              const Text(
+                'No templates found. Default template will be used.',
+                style: TextStyle(color: Colors.grey),
+              ),
+
             const SizedBox(height: 24),
 
             // quick select
@@ -255,6 +332,7 @@ class _ReportGenerateScreenState extends State<ReportGenerateScreen> {
         companyId: widget.company.id!,
         startDate: _startDate,
         endDate: _endDate,
+        templateId: _selectedTemplateId,
       );
 
       if (mounted) {

@@ -1208,6 +1208,7 @@ class _ReportGenerationEndpoint {
     required int companyId,
     required DateTime startDate,
     required DateTime endDate,
+    int? templateId,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1224,6 +1225,7 @@ class _ReportGenerationEndpoint {
             'companyId': companyId,
             'startDate': startDate,
             'endDate': endDate,
+            'templateId': templateId,
           }),
           serializationManager: _serializationManager,
         );

@@ -458,6 +458,7 @@ class EndpointReportGeneration extends _i2.EndpointRef {
     required int companyId,
     required DateTime startDate,
     required DateTime endDate,
+    int? templateId,
   }) => caller.callServerEndpoint<_i7.Report>(
     'reportGeneration',
     'generate',
@@ -465,6 +466,7 @@ class EndpointReportGeneration extends _i2.EndpointRef {
       'companyId': companyId,
       'startDate': startDate,
       'endDate': endDate,
+      'templateId': templateId,
     },
   );
 

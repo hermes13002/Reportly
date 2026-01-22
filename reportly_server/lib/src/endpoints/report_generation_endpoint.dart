@@ -15,6 +15,7 @@ class ReportGenerationEndpoint extends Endpoint {
     required int companyId,
     required DateTime startDate,
     required DateTime endDate,
+    int? templateId,
   }) async {
     // fetch company
     final company = await Company.db.findById(session, companyId);
@@ -97,7 +98,14 @@ class ReportGenerationEndpoint extends Endpoint {
     // get template
     final templates = await ReportTemplate.db.find(
       session,
-      where: (t) => t.companyId.equals(companyId) & t.isDefault.equals(true),
+      where: (t) {
+        // If templateId provided, search by ID
+        if (templateId != null) {
+          return t.id.equals(templateId);
+        }
+        // Otherwise use default
+        return t.companyId.equals(companyId) & t.isDefault.equals(true);
+      },
       limit: 1,
     );
 

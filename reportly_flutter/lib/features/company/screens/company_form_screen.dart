@@ -19,6 +19,7 @@ class _CompanyFormScreenState extends State<CompanyFormScreen> {
   String _selectedTimezone = 'UTC';
   String _frequency = 'weekly';
   int? _customDays;
+  bool _aiEnabled = true;
   String _tone = 'formal'; // Default to one of the UI options
   bool _saving = false;
 
@@ -41,6 +42,7 @@ class _CompanyFormScreenState extends State<CompanyFormScreen> {
 
     _frequency = widget.company?.reportFrequency ?? 'weekly';
     _customDays = widget.company?.customFrequencyDays;
+    _aiEnabled = widget.company?.aiEnabled ?? true;
     _tone =
         widget.company?.toneSetting ??
         'professional'; // professional/casual/technical
@@ -287,66 +289,74 @@ class _CompanyFormScreenState extends State<CompanyFormScreen> {
             ),
             const SizedBox(height: 32),
 
-            // AI Tone
+            // AI Toggle & Tone
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'AI Tone',
+                  'AI Features',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    'Preview',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 12,
-                    ),
-                  ),
+                Switch(
+                  value: _aiEnabled,
+                  onChanged: (v) => setState(() => _aiEnabled = v),
+                  activeColor: Theme.of(context).primaryColor,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Controls the personality of your automated reports.',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
+            if (_aiEnabled) ...[
+              Text(
+                'AI Tone',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              Text(
+                'Controls the personality of your automated reports.',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
+              ),
+              const SizedBox(height: 16),
 
-            _buildToneCard(
-              id: 'professional',
-              title: 'Professional',
-              subtitle: 'Concise, formal, and objective.',
-              icon: Icons.business_center,
-            ),
-            const SizedBox(height: 12),
-            _buildToneCard(
-              id: 'casual',
-              title: 'Casual',
-              subtitle: 'Friendly, conversational updates.',
-              icon: Icons.coffee,
-            ),
-            const SizedBox(height: 12),
-            _buildToneCard(
-              id: 'technical',
-              title: 'Technical',
-              subtitle: 'Detailed, code-centric focus.',
-              icon: Icons.terminal,
-            ),
+              _buildToneCard(
+                id: 'professional',
+                title: 'Professional',
+                subtitle: 'Concise, formal, and objective.',
+                icon: Icons.business_center,
+              ),
+              const SizedBox(height: 12),
+              _buildToneCard(
+                id: 'casual',
+                title: 'Casual',
+                subtitle: 'Friendly, conversational updates.',
+                icon: Icons.coffee,
+              ),
+              const SizedBox(height: 12),
+              _buildToneCard(
+                id: 'technical',
+                title: 'Technical',
+                subtitle: 'Detailed, code-centric focus.',
+                icon: Icons.terminal,
+              ),
+            ] else
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'AI summarization is disabled. Reports will only contain raw commit data.',
+                ),
+              ),
 
             const SizedBox(height: 48),
 
@@ -502,7 +512,7 @@ class _CompanyFormScreenState extends State<CompanyFormScreen> {
         timezone: _selectedTimezone,
         reportFrequency: _frequency,
         customFrequencyDays: _frequency == 'custom' ? _customDays : null,
-        aiEnabled: true, // Auto-enable AI for new tone logic
+        aiEnabled: _aiEnabled,
         toneSetting: _tone,
         createdAt: widget.company?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
